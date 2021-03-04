@@ -2,23 +2,165 @@
 #include <sstream>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <GLES3/gl3.h>
+#include <GLES3/gl31.h>
 #pragma comment (lib, "libEGL.lib")
 #pragma comment (lib, "libGLESv2.lib")
+#pragma comment (lib, "libMaliEmulator.lib")
+
+float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+};
+
+const char* vs  = R"(#version 310 es
+layout (location = 0) in vec3 position;
+void main()
+{
+   gl_Position = vec4(position, 1.0f);
+}
+)";
+
+const char* fs = R"(#version 310 es
+#extension GL_ARM_shader_framebuffer_fetch : enable
+precision mediump float;
+layout(location = 0) uniform vec4 uBlend0;
+layout(location = 1) uniform vec4 uBlend1;
+layout(location = 0) out vec4 fragColor;
+void main ( void )
+{
+#ifdef GL_ARM_shader_framebuffer_fetch
+	vec4 Color = gl_LastFragColorARM;
+	Color = mix(Color, uBlend0, Color.w*uBlend0.w);
+	Color *= uBlend1;
+#else
+	vec4 Color = vec4(1,0,0,0) + 0.001*uBlend0*uBlend1;
+#endif
+	fragColor = Color;
+}
+)";
+
+HWND hWnd;
+EGLDisplay eglDisplay;
+EGLSurface eglSurface;
+GLuint vao, vbo, program;
 
 void Init()
 {
-	//TODO
+	// vertex and index buffer
+	// create and bind vertex array object
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	// create vertex buffer object copy our vertices array in a buffer for OpenGL to use
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// set vertex attributes pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	
+	// shader
+	GLint compileResult = GL_FALSE;
+	//compile vertex shader
+	GLuint vertexShader(glCreateShader(GL_VERTEX_SHADER));
+	glShaderSource(vertexShader, 1, &vs, nullptr);
+	glCompileShader(vertexShader);
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileResult);
+	if(compileResult != GL_TRUE)
+	{
+		int logLength = 0;
+		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
+		if (logLength > 0) {
+			GLchar* strInfoLog = new GLchar[logLength + 1];
+			int actualLogLength = 0;
+			glGetShaderInfoLog(vertexShader, logLength, &actualLogLength, strInfoLog);
+			if(actualLogLength > 0)//Otherwise this is a false error.
+			{
+				char buffer[512];
+				sprintf_s(buffer, "vertex shader error log:\n %s\n", strInfoLog);
+				OutputDebugStringA(buffer);
+				delete[] strInfoLog;
+			}
+		}
+	}
+
+	//compile fragment shader
+	GLuint fragmentShader(glCreateShader(GL_FRAGMENT_SHADER));
+	glShaderSource(fragmentShader, 1, &fs, nullptr);
+	glCompileShader(fragmentShader);
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileResult);
+	if(compileResult != GL_TRUE)
+	{
+		int logLength = 0;
+		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &logLength);
+		if (logLength > 0) {
+			GLchar* strInfoLog = new GLchar[logLength + 1];
+			int actualLogLength = 0;
+			glGetShaderInfoLog(fragmentShader, logLength, &actualLogLength, strInfoLog);
+			if(actualLogLength > 0)//Otherwise this is a false error.
+			{
+				char buffer[512];
+				sprintf_s(buffer, "fragment shader error log:\n %s\n", strInfoLog);
+				OutputDebugStringA(buffer);
+				delete[] strInfoLog;
+			}
+		}
+	}
+
+	//link vertex and fragment shader together
+	program = glCreateProgram();
+	glAttachShader(program, vertexShader);
+	glAttachShader(program, fragmentShader);
+	glLinkProgram(program);
+
+	//delete shaders objects
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+
+	//misc
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
+RECT clientRect = {};
 void Render()
 {
-	//TODO
+	//fetch client rect and adjust GL viewport
+	RECT newClientRect;
+	// Set viewport according to the client rect
+	if (!GetClientRect(hWnd, &newClientRect))
+	{
+		OutputDebugStringA("GetClientRect Failed!\n");
+	}
+	if (newClientRect.left != clientRect.left
+		|| newClientRect.top != clientRect.top
+		|| newClientRect.right != clientRect.right
+		|| newClientRect.bottom != clientRect.bottom)
+	{
+		clientRect = newClientRect;
+		glViewport(0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+	}
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glUseProgram(program);
+	float blend0[] = {0.1f, 0.5f, 0.1f, 0.5f};
+	float blend1[] = {0.5f, 0.1f, 0.1f, 0.5f};
+	glUniform4fv(0, 1, blend0);
+	glUniform4fv(1, 1, blend1);
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	eglSwapBuffers(eglDisplay, eglSurface);
 }
 
 void Destroy()
 {
-	//TODO
+	glDeleteProgram(program);
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+
+	//TODO destroy EGL
 }
 
 void fnCheckEGLError(const char* szFile, int nLine)
@@ -111,22 +253,22 @@ int __stdcall WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance
 		OutputDebugStringA("RegisterClass failed!\n");
 		return -1;
 	}
-	HWND hWnd = CreateWindowW(wc.lpszClassName, L"OpenGLES FrameBufferFetch Demo: Deferred Shading",
+	hWnd = CreateWindowW(wc.lpszClassName, L"OpenGLES FrameBufferFetch Demo: Deferred Shading",
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 640, 480, 0, 0, hInstance, 0);
 	HDC hdc = GetDC(hWnd);
-
+	
 	ShowWindow(hWnd, nShowCmd);
 	UpdateWindow(hWnd);
 
 	// Get EGL display
 	EGLNativeWindowType nativeWindowType = hWnd;
 	EGLNativeDisplayType nativeDisplayType = hdc;
-	EGLDisplay display = eglGetDisplay(nativeDisplayType);
+	eglDisplay = eglGetDisplay(nativeDisplayType);
 
 	// Initialize EGL
 	EGLint major;
 	EGLint minor;
-	if (!eglInitialize(display, &major, &minor))
+	if (!eglInitialize(eglDisplay, &major, &minor))
 	{
 		CheckEGLError
 		return -1;
@@ -146,7 +288,7 @@ int __stdcall WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance
 	};
 	EGLConfig config;
 	EGLint num_configs;
-	if (!eglChooseConfig(display, attributes, &config, 1, &num_configs))
+	if (!eglChooseConfig(eglDisplay, attributes, &config, 1, &num_configs))
 	{
 		CheckEGLError
 		return -1;
@@ -158,12 +300,16 @@ int __stdcall WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance
 	}
 
 	// Create EGL surface
-	EGLSurface surface = eglCreateWindowSurface(display, config, nativeWindowType, nullptr);
+	eglSurface = eglCreateWindowSurface(eglDisplay, config, nativeWindowType, nullptr);
 	CheckEGLError
 
 	// Create EGL context
-	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE };
-	EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+	EGLint contextAttribs[] = {
+		EGL_CONTEXT_MAJOR_VERSION, 3,
+		EGL_CONTEXT_MINOR_VERSION, 1,
+		EGL_NONE
+	};
+	EGLContext context = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT, contextAttribs);
 	if (context == EGL_NO_CONTEXT)
 	{
 		CheckEGLError
@@ -171,7 +317,7 @@ int __stdcall WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance
 	}
 
 	// Make the EGL context current
-	if (!eglMakeCurrent(display, surface, surface, context))
+	if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, context))
 	{
 		CheckEGLError
 		return -1;
