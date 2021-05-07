@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <RootNamespace>OpenGLESViewportDemo</RootNamespace>
+    <RootNamespace>DeferredShadingAndroidCpp</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ProjectVersion>1.0</ProjectVersion>
     <ProjectGuid>{2af17d42-e6c2-45df-b764-d22519b936f4}</ProjectGuid>

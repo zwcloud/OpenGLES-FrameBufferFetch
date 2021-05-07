@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{d153cbc5-e072-49ec-bc42-2ef344f17397}</ProjectGuid>
     <Keyword>Android</Keyword>
-    <RootNamespace>OpenGLESViewportDemo</RootNamespace>
+    <RootNamespace>DeferredShadingAndroidCpp</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
