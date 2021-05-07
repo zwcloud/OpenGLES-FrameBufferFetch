@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31213.239
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{39E2626F-3545-4960-A6E8-258AD8476CE5}") = "DeferredShadingAndroidCpp", "DeferredShadingAndroidCpp\DeferredShadingAndroidCpp.androidproj", "{2AF17D42-E6C2-45DF-B764-D22519B936F4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeferredShadingAndroidCpp.NativeActivity", "DeferredShadingAndroidCpp.NativeActivity\DeferredShadingAndroidCpp.NativeActivity.vcxproj", "{D153CBC5-E072-49EC-BC42-2EF344F17397}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|x86 = Debug|x86
+		Release|ARM = Release|ARM
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Debug|ARM.ActiveCfg = Debug|ARM
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Debug|ARM.Build.0 = Debug|ARM
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Debug|ARM.Deploy.0 = Debug|ARM
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Debug|x86.ActiveCfg = Debug|x86
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Debug|x86.Build.0 = Debug|x86
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Debug|x86.Deploy.0 = Debug|x86
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Release|ARM.ActiveCfg = Release|ARM
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Release|ARM.Build.0 = Release|ARM
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Release|ARM.Deploy.0 = Release|ARM
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Release|x86.ActiveCfg = Release|x86
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Release|x86.Build.0 = Release|x86
+		{2AF17D42-E6C2-45DF-B764-D22519B936F4}.Release|x86.Deploy.0 = Release|x86
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Debug|ARM.ActiveCfg = Debug|ARM
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Debug|ARM.Build.0 = Debug|ARM
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Debug|x86.ActiveCfg = Debug|x86
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Debug|x86.Build.0 = Debug|x86
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Release|ARM.ActiveCfg = Release|ARM
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Release|ARM.Build.0 = Release|ARM
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Release|x86.ActiveCfg = Release|x86
+		{D153CBC5-E072-49EC-BC42-2EF344F17397}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9C81BAF7-0383-4366-AC53-1BB7C5EE3368}
+	EndGlobalSection
+EndGlobal
