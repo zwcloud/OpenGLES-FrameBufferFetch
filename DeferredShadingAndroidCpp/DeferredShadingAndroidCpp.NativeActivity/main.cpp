@@ -47,7 +47,7 @@ static int engine_init_display(struct engine* engine) {
 	* component compatible with on-screen windows
 	*/
 	const EGLint attribs[] = {
-		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT_KHR,
 		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
 		EGL_BLUE_SIZE, 8,
 		EGL_GREEN_SIZE, 8,
@@ -82,7 +82,10 @@ static int engine_init_display(struct engine* engine) {
 
 	surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
 
-	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+	EGLint contextAttribs[] = {
+		EGL_CONTEXT_MAJOR_VERSION_KHR, 3,
+		EGL_CONTEXT_MINOR_VERSION_KHR, 1,
+		EGL_NONE };
 	context = eglCreateContext(display, config, NULL, contextAttribs);
 
 	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
