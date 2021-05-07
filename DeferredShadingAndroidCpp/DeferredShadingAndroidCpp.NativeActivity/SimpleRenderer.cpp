@@ -123,13 +123,13 @@ in vec4 pColor;
 layout(location = 0) inout vec4 fragColor;
 void main()
 {
-//#ifdef GL_EXT_shader_framebuffer_fetch
-//	vec4 Color = vec4(0,0.02,0,1);
-//    Color.g += fragColor.g;
-//    Color.g = mod(Color.g, 1.0f);
-//#else
+#ifdef GL_EXT_shader_framebuffer_fetch
+	vec4 Color = vec4(0,0.02,0,1);
+    Color.g += fragColor.g;
+    Color.g = mod(Color.g, 1.0f);
+#else
     vec4 Color = 0.5 * pColor + 0.5 * vec4(1,0,0,1);
-//#endif
+#endif
     fragColor = Color;
 })";
 
