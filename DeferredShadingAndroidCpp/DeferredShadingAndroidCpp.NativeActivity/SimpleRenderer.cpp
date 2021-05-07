@@ -42,8 +42,8 @@ GLuint CompileShader(GLenum type, const std::string &source)
 
         std::string errorMessage = std::string("Shader compilation failed: ");
         errorMessage += std::string(infoLog.begin(), infoLog.end()); 
-
-        throw std::runtime_error(errorMessage.c_str());
+        const char* msg = errorMessage.c_str();
+        throw std::runtime_error(msg);
     }
 
     return shader;
@@ -104,24 +104,34 @@ SimpleRenderer::SimpleRenderer() :
 {
     // Vertex Shader source
     const std::string vs = R"(
-attribute vec4 vPosition;
-attribute vec4 vColor;
-varying vec4 pColor;
+#version 310 es
+in vec4 vPosition;
+in vec4 vColor;
+out vec4 pColor;
 void main()
 {
 	gl_Position = vec4(vPosition.xy, 0.0, 1.0);
 	pColor = vColor;
-}
-)";
+})";
 
     // Fragment Shader source
     const std::string fs = R"(
-varying vec4 pColor;
+#version 310 es
+#extension GL_EXT_shader_framebuffer_fetch : require
+precision mediump float;
+in vec4 pColor;
+layout(location = 0) inout vec4 fragColor;
 void main()
 {
-	gl_FragColor = pColor;
-}
-)";
+//#ifdef GL_EXT_shader_framebuffer_fetch
+//	vec4 Color = vec4(0,0.02,0,1);
+//    Color.g += fragColor.g;
+//    Color.g = mod(Color.g, 1.0f);
+//#else
+    vec4 Color = 0.5 * pColor + 0.5 * vec4(1,0,0,1);
+//#endif
+    fragColor = Color;
+})";
 
     mProgram = CompileProgram(vs, fs);
     attributePos = glGetAttribLocation(mProgram, "vPosition");
